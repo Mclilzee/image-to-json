@@ -18,7 +18,7 @@ fn main() {
         .collect::<Vec<String>>()
         .join(",\n");
 
-    if json.len() <= 1 {
+    if images.len() <= 1 {
         println!("{}", json);
     } else {
         println!("[{}]", json);

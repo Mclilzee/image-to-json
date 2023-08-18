@@ -3,8 +3,15 @@ use std::env;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    // .expect("File path was not specified");
+    let path = match args.get(1) {
+        Some(file) => file,
+        None => {
+            eprintln!("Error: File path not found");
+            return;
+        }
+    };
 
-    let path = args.get(1).expect("File path was not specified");
     let image = image::open(path).unwrap();
     let rbg = extract_json(image);
     println!("{}", rbg);

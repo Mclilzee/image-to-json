@@ -29,6 +29,9 @@ fn extract_json(image: DynamicImage) -> String {
 
 fn extract_string(pixel: &Rgb<u8>) -> String {
     let pixel = pixel.0;
-    let string = format!("{{r:{}, g:{}, b:{}}}", pixel[0], pixel[1], pixel[2]);
+    let string = format!(
+        "{{\"r\":{}, \"g\":{}, \"b\":{}}}",
+        pixel[0], pixel[1], pixel[2]
+    );
     return string;
 }

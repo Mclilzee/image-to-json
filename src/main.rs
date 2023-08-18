@@ -1,13 +1,13 @@
 use image::{DynamicImage, GenericImageView, Rgb};
+use std::env;
 
 fn main() {
-    let image = image::open("./images/cropped.jpg").unwrap();
-}
+    let args: Vec<String> = env::args().collect();
 
-fn extract_string(pixel: &Rgb<u8>) -> String {
-    let pixel = pixel.0;
-    let string = format!("{{r:{}, g:{}, b:{}}}", pixel[0], pixel[1], pixel[2]);
-    return string;
+    let path = args.get(1).expect("File path was not specified");
+    let image = image::open(path).unwrap();
+    let rbg = extract_image(image);
+    println!("{}", rbg);
 }
 
 fn extract_image(image: DynamicImage) -> String {
@@ -22,5 +22,11 @@ fn extract_image(image: DynamicImage) -> String {
         }
     }
     string += "]";
+    return string;
+}
+
+fn extract_string(pixel: &Rgb<u8>) -> String {
+    let pixel = pixel.0;
+    let string = format!("{{r:{}, g:{}, b:{}}}", pixel[0], pixel[1], pixel[2]);
     return string;
 }

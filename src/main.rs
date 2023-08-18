@@ -1,20 +1,64 @@
 use image::{DynamicImage, GenericImageView, Rgb};
-use std::env;
+use regex::Regex;
+use std::fs::read_dir;
+use std::path::Path;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    // .expect("File path was not specified");
-    let path = match args.get(1) {
-        Some(file) => file,
-        None => {
-            eprintln!("Error: File path not found");
-            return;
+    let args: Vec<String> = std::env::args().collect();
+    let images = match get_images(args) {
+        Ok(images) => images,
+        Err(msg) => {
+            eprintln!("{}", msg);
+            std::process::exit(1);
         }
     };
 
-    let image = image::open(path).unwrap();
-    let rbg = extract_json(image);
-    println!("{}", rbg);
+    //
+    // let file = match File::open(path) {
+    //     Ok(file) => file,
+    //     Err(e) => {
+    //         eprintln!("Error: Could not open file or directory");
+    //         return;
+    //     }
+    // };
+    //
+    // if (file.dbg!)
+
+    // if path.is_file() {
+    // let image = image::open(path);
+    //     let json = extract_json(image);
+    //     println!("{}", json);
+    // } else {
+    // }
+}
+
+fn get_images(args: Vec<String>) -> Result<Vec<DynamicImage>, String> {
+    let mut images: Vec<DynamicImage> = Vec::new();
+    let file = match args.get(1) {
+        Some(file) => file,
+        None => return Err(String::from("Error: File path not found")),
+    };
+
+    if Path::new(file).is_dir() {
+        images = match read_dir(file) {
+            Ok(dir) => dir,
+            Err(_) => return Err(String::from("Error: Could not open file or directory")),
+        }
+        .filter_map(|entry| entry.ok().and_then(|e| e.file_name().into_string().ok()))
+        .filter_map(|file_name| image::open(file_name).ok())
+        .collect();
+    } else {
+        let image = match image::open(file) {
+            Ok(image) => image,
+            Err(_) => return Err(String::from("Failed parsing image")),
+        };
+
+        images.push(image);
+    }
+
+    println!("{:?}", images);
+
+    return Ok(images);
 }
 
 fn extract_json(image: DynamicImage) -> String {

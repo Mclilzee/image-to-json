@@ -1,5 +1,4 @@
 use image::{DynamicImage, GenericImageView, Rgb};
-use regex::Regex;
 use std::fs::read_dir;
 use std::path::Path;
 
@@ -13,23 +12,17 @@ fn main() {
         }
     };
 
-    //
-    // let file = match File::open(path) {
-    //     Ok(file) => file,
-    //     Err(e) => {
-    //         eprintln!("Error: Could not open file or directory");
-    //         return;
-    //     }
-    // };
-    //
-    // if (file.dbg!)
+    let json = images
+        .iter()
+        .map(|image| String::from(extract_json(image)))
+        .collect::<Vec<String>>()
+        .join(",\n");
 
-    // if path.is_file() {
-    // let image = image::open(path);
-    //     let json = extract_json(image);
-    //     println!("{}", json);
-    // } else {
-    // }
+    if json.len() <= 1 {
+        println!("{}", json);
+    } else {
+        println!("[{}]", json);
+    }
 }
 
 fn get_images(args: Vec<String>) -> Result<Vec<DynamicImage>, String> {
@@ -44,7 +37,8 @@ fn get_images(args: Vec<String>) -> Result<Vec<DynamicImage>, String> {
             Ok(dir) => dir,
             Err(_) => return Err(String::from("Error: Could not open file or directory")),
         }
-        .filter_map(|entry| entry.ok().and_then(|e| e.file_name().into_string().ok()))
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
         .filter_map(|file_name| image::open(file_name).ok())
         .collect();
     } else {
@@ -56,12 +50,10 @@ fn get_images(args: Vec<String>) -> Result<Vec<DynamicImage>, String> {
         images.push(image);
     }
 
-    println!("{:?}", images);
-
     return Ok(images);
 }
 
-fn extract_json(image: DynamicImage) -> String {
+fn extract_json(image: &DynamicImage) -> String {
     let mut image_strings: Vec<String> = Vec::new();
     let (x, y) = image.dimensions();
     let rbg = image.to_rgb8();

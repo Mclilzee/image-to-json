@@ -6,27 +6,29 @@ fn main() {
 
     let path = args.get(1).expect("File path was not specified");
     let image = image::open(path).unwrap();
-    let rbg = extract_image(image);
+    let rbg = extract_json(image);
     println!("{}", rbg);
 }
 
-fn extract_image(image: DynamicImage) -> String {
-    let mut string = String::from("[");
+fn extract_json(image: DynamicImage) -> String {
+    let mut image_strings: Vec<String> = Vec::new();
     let (x, y) = image.dimensions();
     let rbg = image.to_rgb8();
 
     for i in 0..x {
         for j in 0..y {
             let pixel = rbg.get_pixel(i, j);
-            string = format!("{} {}", string, extract_string(pixel));
+            image_strings.push(extract_string(pixel));
         }
     }
-    string += "]";
-    return string;
+
+    let objects_string = image_strings.join(", ");
+
+    return format!("[{}]", objects_string);
 }
 
 fn extract_string(pixel: &Rgb<u8>) -> String {
     let pixel = pixel.0;
-    let string = format!("{{r:{}, g:{}, b:{}}},\n", pixel[0], pixel[1], pixel[2]);
+    let string = format!("{{r:{}, g:{}, b:{}}}", pixel[0], pixel[1], pixel[2]);
     return string;
 }
